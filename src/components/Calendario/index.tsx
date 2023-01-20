@@ -2,10 +2,11 @@
 import React from 'react';
 import style from './Calendario.module.scss';
 import ptBR from './localizacao/ptBR.json';
-import Kalend, { CalendarView } from 'kalend';
+import Kalend, {CalendarEvent, CalendarView, OnEventDragFinish} from 'kalend';
 import 'kalend/dist/styles/index.css';
-import {useRecoilValue} from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {listaDeEventosState} from '../../state/atom';
+import useAtualizarEvento from '../../state/hooks/useAtualizarEvento';
 
 interface IKalendEvento {
   id?: number
@@ -16,6 +17,8 @@ interface IKalendEvento {
 }
 
 const Calendario: React.FC = () => {
+
+  const atualizarEvento = useAtualizarEvento();
 
   const eventosKalend = new Map<string, IKalendEvento[]>();
   // Hook do recoil para acessar atom
@@ -34,6 +37,28 @@ const Calendario: React.FC = () => {
       color: 'blue'
     });
   });
+
+  const onEventDragFinish: OnEventDragFinish = (
+    kalendEventoInalterado: CalendarEvent,
+    kalendEventoAtualizado: CalendarEvent
+  ) => {
+    // Procura o evento que tenha sua descrição = ao summary do evento no calendar
+    const evento = eventos.find(evento =>
+      evento.descricao === kalendEventoAtualizado.summary
+    );
+    if(evento) {
+      // Para manipular o evento:
+      const eventoAtualizado = {
+        ...evento
+      };
+      // Seta o inicio com aquele escolhido no calendario
+      eventoAtualizado.inicio = new Date(kalendEventoAtualizado.startAt);
+      eventoAtualizado.fim = new Date(kalendEventoAtualizado.endAt);
+
+      atualizarEvento(eventoAtualizado);
+    }
+  };
+
   return (
     <div className={style.Container}>
       <Kalend
@@ -46,6 +71,7 @@ const Calendario: React.FC = () => {
         calendarIDsHidden={['work']}
         language={'customLanguage'}
         customLanguage={ptBR}
+        onEventDragFinish={onEventDragFinish}
       />
     </div>
   );
