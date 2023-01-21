@@ -4,15 +4,14 @@ import style from './Evento.module.scss';
 import EventoCheckbox from './EventoCheckbox';
 import {useSetRecoilState} from 'recoil';
 import {listaDeEventosState} from '../../state/atom';
+import useExcluirEvento from '../../state/hooks/useExcluirEvento';
 
 const Evento: React.FC<{ evento: IEvento }> = ({ evento}) => {
 
-  // Hook para setar lista de eventos do recoil
-  const setListaDeEventos = useSetRecoilState<IEvento[]>(listaDeEventosState);
+  const excluirEvento = useExcluirEvento();
 
-  function excluirEvento () {
-    setListaDeEventos(listaAntiga =>
-      listaAntiga.filter(evt => evt.id !== evento.id));
+  function excluir () {
+    excluirEvento(evento);
   }
 
   const estilos = [
@@ -31,7 +30,7 @@ const Evento: React.FC<{ evento: IEvento }> = ({ evento}) => {
     </div>
     <i
       className="far fa-times-circle fa-2x"
-      onClick={excluirEvento}
+      onClick={excluir}
     >
     </i>
   </div>);

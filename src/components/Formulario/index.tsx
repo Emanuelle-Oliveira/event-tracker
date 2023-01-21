@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { IEvento } from '../../interfaces/IEvento';
 import style from './Formulario.module.scss';
-import {obterId} from '../../util';
-import {useSetRecoilState} from 'recoil';
-import {listaDeEventosState} from '../../state/atom';
+import useAdicionarEvento from '../../state/hooks/useAdicionarEvento';
 
 const Formulario: React.FC = () => {
 
-  // Hook para setar lista de eventos do recoil
-  const setListaDeEventos = useSetRecoilState<IEvento[]>(listaDeEventosState);
+  // Importa o hook que foi encapsulado
+  const adicionarEvento = useAdicionarEvento();
 
   const [descricao, setDescricao] = useState('');
   const [dataInicio, setDataInicio] = useState('');
@@ -23,26 +20,25 @@ const Formulario: React.FC = () => {
 
   const submeterForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Cria novo evento
-    const evento = ({
-      id: obterId(),
-      descricao,
-      inicio: montarData(dataInicio, horaInicio),
-      fim: montarData(dataFim, horaFim),
-      completo: false
-    });
-    // Adicionar evento a lista
-    setListaDeEventos(listaAntiga => [...listaAntiga, evento]);
-    /*
-    * function (listaAntiga: IEvento []) {
-    *   return [...listaAntiga, evento];
-    * }
-    * */
-    setDescricao('');
-    setDataInicio('');
-    setHoraInicio('');
-    setDataFim('');
-    setHoraFim('');
+    try {
+      // Cria novo evento
+      const evento = ({
+        descricao,
+        inicio: montarData(dataInicio, horaInicio),
+        fim: montarData(dataFim, horaFim),
+        completo: false
+      });
+      // Chama o hook que adiciona evento
+      adicionarEvento(evento);
+      // Limpa os campos:
+      setDescricao('');
+      setDataInicio('');
+      setHoraInicio('');
+      setDataFim('');
+      setHoraFim('');
+    } catch (error) {
+      alert(error);
+    }
   };
   return (<form className={style.Formulario} onSubmit={submeterForm}>
     <h3 className={style.titulo}>Novo evento</h3>
