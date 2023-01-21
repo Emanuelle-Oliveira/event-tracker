@@ -1,5 +1,6 @@
 import {selector} from 'recoil';
 import {filtroDeEventos, listaDeEventosState} from '../atom';
+import {IEvento} from '../../interfaces/IEvento';
 
 // Seletor para aplicar o filtro
 // 1º parametro: key
@@ -23,6 +24,21 @@ export const eventosFiltradosState = selector({
       return ehOMesmoDia;
     });
     return eventos;
+  }
+});
+
+// Seletor async -> dados json server
+export const eventosAsync = selector({
+  key: 'eventosAsync',
+  get: async () => {
+    const responseHttp = await fetch('http://localhost:8080/eventos');
+    const eventosJson: IEvento[] = await responseHttp.json();
+    // Passa datas do json para Date
+    return eventosJson.map(evento =>({
+      ...evento,
+      inicio: new Date(evento.inicio),
+      fim: new Date(evento.fim),
+    }));
   }
 });
 
