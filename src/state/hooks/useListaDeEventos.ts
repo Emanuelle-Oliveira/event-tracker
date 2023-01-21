@@ -1,7 +1,8 @@
 import {useRecoilValue} from 'recoil';
-import {listaDeEventosState} from '../atom';
+import {eventosFiltradosState} from '../seletores';
 
 // Para encapsular a chamada do recoil, buscar lista
 export default function useListaDeEventos() {
-  return useRecoilValue(listaDeEventosState);
+  // Já retorna a lista filtrada, caso tenha filtro
+  return useRecoilValue(eventosFiltradosState);
 }
